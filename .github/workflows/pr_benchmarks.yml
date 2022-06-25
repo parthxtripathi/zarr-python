@@ -4,9 +4,7 @@ on:
     pull_request:
     push:
         branches:
-            - master
-        tags:
-          - '*'
+            - main
 
 jobs:
   pr_benchmark:
