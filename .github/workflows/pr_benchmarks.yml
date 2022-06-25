@@ -1,66 +1,66 @@
 name: pr_benchmarks
 
- on:
-     pull_request:
-     push:
-         branches:
-             - master
-         tags:
-           - '*'
+on:
+    pull_request:
+    push:
+        branches:
+            - master
+        tags:
+          - '*'
 
- jobs:
-   pr_benchmark:
-     runs-on: ubuntu-latest
-     steps:
-       - uses: actions/setup-python@v2
-         with:
-           python-version: 3.9
+jobs:
+  pr_benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
 
-       - name: Checkout zarr
-         uses: actions/checkout@v2
-         with:
-           fetch-depth: 0
+      - name: Checkout zarr
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-       - name: Install zarr dependencies
-         run: |
-           pip install .
-       
-       - name: Run benchmarks
-         run: |
-           cd Benchmark/
-           asv machine --yes
-           asv continuous origin/master HEAD --quick
-           asv compare origin/master HEAD --split --sort ratio | tee -a asv_continuous.log
-       
-       - id: get-comment-body
-         run: |
-           cd Benchmark/
-           body="$(cat asv_continuous.log)"
-           body="${body//'%'/'%25'}"
-           body="${body//$'\n'/'%0A'}"
-           body="${body//$'\r'/'%0D'}" 
-           echo "::set-output name=body::$body"
+      - name: Install zarr dependencies
+        run: |
+          pip install .
+      
+      - name: Run benchmarks
+        run: |
+          cd Benchmark/
+          asv machine --yes
+          asv continuous origin/master HEAD --quick
+          asv compare origin/master HEAD --split --sort ratio | tee -a asv_continuous.log
+      
+      - id: get-comment-body
+        run: |
+          cd Benchmark/
+          body="$(cat asv_continuous.log)"
+          body="${body//'%'/'%25'}"
+          body="${body//$'\n'/'%0A'}"
+          body="${body//$'\r'/'%0D'}" 
+          echo "::set-output name=body::$body"
 
-       - name: Find Comment
-         uses: peter-evans/find-comment@v2
-         id: fc
-         with:
-           issue-number: ${{ github.event.pull_request.number }}
-           comment-author: 'github-actions[bot]'
+      - name: Find Comment
+        uses: peter-evans/find-comment@v2
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
 
-       - name: Create comment
-         if: steps.fc.outputs.comment-id == ''
-         uses: peter-evans/create-or-update-comment@v2
-         with:
-           issue-number: ${{ github.event.pull_request.number }}
-           body: |
-             ${{ steps.get-comment-body.outputs.body }}
+      - name: Create comment
+        if: steps.fc.outputs.comment-id == ''
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ${{ steps.get-comment-body.outputs.body }}
 
-       - name: Update comment
-         if: steps.fc.outputs.comment-id != ''
-         uses: peter-evans/create-or-update-comment@v2
-         with:
-           comment-id: ${{ steps.fc.outputs.comment-id }}
-           body: |
-             ${{ steps.get-comment-body.outputs.body }}
-           edit-mode: replace
+      - name: Update comment
+        if: steps.fc.outputs.comment-id != ''
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: |
+            ${{ steps.get-comment-body.outputs.body }}
+          edit-mode: replace
