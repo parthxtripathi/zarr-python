@@ -57,5 +57,21 @@
         "version": "cace9f2d006aa364dcf5762823afba3680c2fb50179ee30beaf880c0697256e2",
         "warmup_time": -1
     },
+    "misc.misc.time_misc": {
+        "code": "class misc:\n    def time_misc(self):\n        \"\"\"\n        Measure the time required and number of objects created when writing\n        to a Zarr array with random ints or fill value.\n        \"\"\"\n        chunks = (8192,)\n        shape = (chunks[0] * 1024,)\n        data = np.random.randint(0, 255, shape)\n        dtype = 'uint8'\n    \n        with TemporaryDirectory() as store:\n            arr = zarr.open(store,\n            shape=shape,\n            chunks=chunks,\n            dtype=dtype,\n            write_empty_chunks=True,\n            fill_value=0,\n            mode='w')\n            # initialize all chunks\n        arr[:] = 100\n        result = []\n        for value in (data, arr.fill_value):\n            start = time.time()\n            arr[:] = value\n            elapsed = time.time() - start\n            result.append((elapsed, arr.nchunks_initialized))\n    \n        return result",
+        "min_run_count": 2,
+        "name": "misc.misc.time_misc",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "timeout": 60.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "cf99d1057b30e229d2108f9aadb27951809c73887395d6108ff52b7c17baed98",
+        "warmup_time": -1
+    },
     "version": 2
 }
