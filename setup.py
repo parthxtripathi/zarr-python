@@ -11,6 +11,7 @@ dependencies = [
     'numpy>=1.7',
     'fasteners',
     'numcodecs>=0.6.4',
+    'asv'
 ]
 
 setup(
